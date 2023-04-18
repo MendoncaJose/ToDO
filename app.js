@@ -9,6 +9,37 @@ let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
 let formattedDate = day.toLocaleDateString('en-US', options);
 document.getElementById("day").innerHTML = formattedDate;
 
+// Load todo items from local storage
+let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+function saveTodos() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
+
+function renderTodos() {
+  todoList.innerHTML = '';
+  for (let i = 0; i < todos.length; i++) {
+    const todo = todos[i];
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    const deleteBtn = document.createElement("button");
+
+    span.textContent = todo.text;
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", () => {
+      todos.splice(i, 1);
+      saveTodos();
+      renderTodos();
+    });
+
+    li.appendChild(span);
+    li.appendChild(deleteBtn);
+    todoList.appendChild(li);
+  }
+}
+
+renderTodos();
+
 addBtn.addEventListener("click", () => {
   const todoText = todoInput.value.trim();
   if (!todoText) {
@@ -17,19 +48,12 @@ addBtn.addEventListener("click", () => {
     return;
   }
 
-  const li = document.createElement("li");
-  const span = document.createElement("span");
-  const deleteBtn = document.createElement("button");
+  // Add new todo to the list and save to local storage
+  todos.push({ text: todoText });
+  saveTodos();
 
-  span.textContent = todoText;
-  deleteBtn.textContent = "Delete";
-  deleteBtn.addEventListener("click", () => {
-    li.remove();
-  });
+  renderTodos();
 
-  li.appendChild(span);
-  li.appendChild(deleteBtn);
-  todoList.appendChild(li);
   todoInput.value = "";
 });
 
